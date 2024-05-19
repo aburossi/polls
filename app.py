@@ -27,7 +27,7 @@ def add_responses_to_sheet(responses):
     worksheet.append_rows(rows)
 
 # Initialize cookies manager
-cookies = EncryptedCookieManager(prefix="poll_", password=st.secrets["cookie_password"])
+cookies = EncryptedCookieManager(prefix="poll_", password=st.secrets["1234"])
 
 if not cookies.ready():
     st.stop()
