@@ -13,9 +13,9 @@ def main():
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
     client = gspread.authorize(credentials)
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
-    worksheet_poll_1 = spreadsheet.worksheet("Umfrage 1")
-    worksheet_poll_2 = spreadsheet.worksheet("Umfrage 2")
-    worksheet_poll_3 = spreadsheet.worksheet("Umfrage 3")
+    worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
+    worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
+    worksheet_poll_3 = spreadsheet.worksheet("Poll 3")
 
     st.header("Previous Rankings")
     try:
