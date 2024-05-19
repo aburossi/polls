@@ -6,9 +6,9 @@ from streamlit_cookies_manager import EncryptedCookieManager
 
 # Define static questions and answers
 questions = [
-    "Frage 1",
-    "Frage 2",
-    "Frage 3"
+    "What is the capital of France?",
+    "What is 2 + 2?",
+    "Which is the largest planet?"
 ]
 
 options = ["A", "B", "C", "D"]
