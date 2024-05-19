@@ -13,31 +13,43 @@ def main():
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
     client = gspread.authorize(credentials)
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
-    worksheet = spreadsheet.sheet1
+    worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
+    worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
 
     st.header("Previous Rankings")
     try:
-        all_rankings = worksheet.get_all_records()
-        if all_rankings:
-            results_df = pd.DataFrame(all_rankings, columns=["Rank", "Choice"])
+        # Fetch data from Poll 1
+        all_rankings_poll_1 = worksheet_poll_1.get_all_records()
+        if all_rankings_poll_1:
+            results_df_poll_1 = pd.DataFrame(all_rankings_poll_1, columns=["Rank", "Choice"])
+            results_df_poll_1["Rank"] = pd.to_numeric(results_df_poll_1["Rank"])
+            average_ranks_poll_1 = results_df_poll_1.groupby("Choice")["Rank"].mean().reset_index()
+            average_ranks_poll_1.columns = ["Choice", "Average Rank"]
+            average_ranks_poll_1["Poll"] = "Poll 1"
 
-            # Convert "Rank" to numeric
-            results_df["Rank"] = pd.to_numeric(results_df["Rank"])
+        # Fetch data from Poll 2
+        all_rankings_poll_2 = worksheet_poll_2.get_all_records()
+        if all_rankings_poll_2:
+            results_df_poll_2 = pd.DataFrame(all_rankings_poll_2, columns=["Rank", "Choice"])
+            results_df_poll_2["Rank"] = pd.to_numeric(results_df_poll_2["Rank"])
+            average_ranks_poll_2 = results_df_poll_2.groupby("Choice")["Rank"].mean().reset_index()
+            average_ranks_poll_2.columns = ["Choice", "Average Rank"]
+            average_ranks_poll_2["Poll"] = "Poll 2"
 
-            # Calculate average rank for each choice
-            average_ranks = results_df.groupby("Choice")["Rank"].mean().reset_index()
-            average_ranks.columns = ["Choice", "Average Rank"]
-            average_ranks = average_ranks.sort_values(by="Average Rank")
+        # Combine data for both polls
+        combined_df = pd.concat([average_ranks_poll_1, average_ranks_poll_2])
 
-            # Display the results as a bar chart
-            chart = alt.Chart(average_ranks).mark_bar().encode(
-                x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
-            ).properties(
-                title="Average Ranking of Choices"
-            )
+        # Display the results as a bar chart with different colors for each poll
+        chart = alt.Chart(combined_df).mark_bar().encode(
+            x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
+            y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice")),
+            color=alt.Color("Poll:N", legend=alt.Legend(title="Poll"))
+        ).properties(
+            title="Average Ranking of Choices"
+        )
 
-            st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, use_container_width=True)
+
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
