@@ -9,7 +9,7 @@ def main():
     choices_poll_1 = ["Option A", "Option B", "Option C", "Option D"]
     choices_poll_2 = ["Option A", "Option B", "Option C", "Option D"]
     choices_poll_3 = ["Option A", "Option B", "Option C", "Option D"]
-    
+
     # Load credentials from Streamlit secrets
     credentials_dict = st.secrets["google_credentials"]
 
@@ -18,9 +18,9 @@ def main():
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
     client = gspread.authorize(credentials)
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
-    worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
-    worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
-    worksheet_poll_3 = spreadsheet.worksheet("Poll 3")
+    worksheet_poll_1 = spreadsheet.worksheet("Umfrage 1")
+    worksheet_poll_2 = spreadsheet.worksheet("Umfrage 2")
+    worksheet_poll_3 = spreadsheet.worksheet("Umfrage 3")
 
     # Check if headers are already present for both polls; if not, add them
     if worksheet_poll_1.row_count == 0:
@@ -62,12 +62,12 @@ def main():
                 rows = [[rank, choice] for rank, choice in rankings.items()]
                 worksheet.append_rows(rows)
 
-            if st.button(f"Submit {poll_name} Rankings"):
+            if st.button(f"Präferenzen {poll_name} senden"):
                 add_rankings_to_sheet(rankings)
                 cookies["last_submission"] = datetime.datetime.now().isoformat()
                 cookies.save()
                 st.session_state.has_submitted = True
-                st.success(f"{poll_name} Rankings submitted successfully!")
+                st.success(f"{poll_name} Präferenzen erfolgreich gesendet!")
 
         # Create ranking polls
         create_ranking_poll(choices_poll_1, worksheet_poll_1, "Poll 1")
