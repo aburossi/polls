@@ -2,6 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime
+from streamlit_cookies_manager import EncryptedCookieManager
 
 # Define static questions and answers
 questions = [
@@ -25,25 +26,20 @@ def add_responses_to_sheet(responses):
     rows = [[question, answer] for question, answer in responses.items()]
     worksheet.append_rows(rows)
 
-# Function to set a cookie with the current timestamp
-def set_cookie(key, value):
-    st.experimental_set_query_params(**{key: value})
+# Initialize cookies manager
+cookies = EncryptedCookieManager(prefix="poll_", password=st.secrets["cookie_password"])
 
-# Function to get a cookie value
-def get_cookie(key):
-    params = st.experimental_get_query_params()
-    return params.get(key, [None])[0]
-
-# Initialize session state
-if "has_submitted" not in st.session_state:
-    st.session_state.has_submitted = False
+if not cookies.ready():
+    st.stop()
 
 # Check if the user has submitted in the last 24 hours
-last_submission = get_cookie("last_submission")
+last_submission = cookies.get("last_submission")
 if last_submission:
     last_submission_time = datetime.datetime.fromisoformat(last_submission)
     if (datetime.datetime.now() - last_submission_time).days < 1:
         st.session_state.has_submitted = True
+else:
+    st.session_state.has_submitted = False
 
 # Display questions for polling
 st.header("Classroom Poll")
@@ -59,6 +55,7 @@ else:
 
     if st.button("Submit Poll"):
         add_responses_to_sheet(responses)
-        set_cookie("last_submission", datetime.datetime.now().isoformat())
+        cookies["last_submission"] = datetime.datetime.now().isoformat()
+        cookies.save()
         st.session_state.has_submitted = True
         st.success("Responses submitted successfully!")
