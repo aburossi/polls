@@ -53,10 +53,15 @@ try:
     if not all_responses.empty:
         st.header("Poll Results")
         results_df = pd.DataFrame(all_responses)
-        for question in questions:
-            st.write(f"**{question}**")
-            response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
-            st.bar_chart(response_data)
+        
+        # Ensure column headers are present
+        if 'Question' not in results_df.columns or 'Answer' not in results_df.columns:
+            st.error("Data format error: Ensure the first row of your Google Sheet contains 'Question' and 'Answer' headers.")
+        else:
+            for question in questions:
+                st.write(f"**{question}**")
+                response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
+                st.bar_chart(response_data)
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
