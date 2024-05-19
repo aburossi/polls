@@ -26,11 +26,12 @@ def main():
             results_df_poll_1["Rank"] = pd.to_numeric(results_df_poll_1["Rank"])
             average_ranks_poll_1 = results_df_poll_1.groupby("Choice")["Rank"].mean().reset_index()
             average_ranks_poll_1.columns = ["Choice", "Average Rank"]
+            average_ranks_poll_1 = average_ranks_poll_1.sort_values(by="Average Rank", ascending=True)
 
             # Display the results as a bar chart for Poll 1
             chart_poll_1 = alt.Chart(average_ranks_poll_1).mark_bar(color='blue').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 1"
             )
@@ -44,11 +45,12 @@ def main():
             results_df_poll_2["Rank"] = pd.to_numeric(results_df_poll_2["Rank"])
             average_ranks_poll_2 = results_df_poll_2.groupby("Choice")["Rank"].mean().reset_index()
             average_ranks_poll_2.columns = ["Choice", "Average Rank"]
+            average_ranks_poll_2 = average_ranks_poll_2.sort_values(by="Average Rank", ascending=True)
 
             # Display the results as a bar chart for Poll 2
             chart_poll_2 = alt.Chart(average_ranks_poll_2).mark_bar(color='green').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 2"
             )
@@ -62,11 +64,12 @@ def main():
             results_df_poll_3["Rank"] = pd.to_numeric(results_df_poll_3["Rank"])
             average_ranks_poll_3 = results_df_poll_3.groupby("Choice")["Rank"].mean().reset_index()
             average_ranks_poll_3.columns = ["Choice", "Average Rank"]
+            average_ranks_poll_3 = average_ranks_poll_3.sort_values(by="Average Rank", ascending=True)
 
             # Display the results as a bar chart for Poll 3
             chart_poll_3 = alt.Chart(average_ranks_poll_3).mark_bar(color='red').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 3"
             )
