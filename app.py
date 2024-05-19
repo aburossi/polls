@@ -22,12 +22,13 @@ worksheet = spreadsheet.sheet1
 
 # Function to add responses to the Google Sheet
 def add_responses_to_sheet(responses):
-    for question, answer in responses.items():
-        worksheet.append_row([question, answer])
+    rows = [[question, answer] for question, answer in responses.items()]
+    worksheet.append_rows(rows)
 
 # Function to get all responses from the Google Sheet
 def get_all_responses():
-    return worksheet.get_all_records()
+    records = worksheet.get_all_records()
+    return pd.DataFrame(records)
 
 # Initialize session state
 if "responses" not in st.session_state:
@@ -47,11 +48,18 @@ if st.button("Submit Poll"):
     st.success("Responses submitted successfully!")
 
 # Display results
-all_responses = get_all_responses()
-if all_responses:
-    st.header("Poll Results")
-    results_df = pd.DataFrame(all_responses)
-    for question in questions:
-        st.write(f"**{question}**")
-        response_data = results_df[results_df['question'] == question]['answer'].value_counts()
-        st.bar_chart(response_data)
+try:
+    all_responses = get_all_responses()
+    if not all_responses.empty:
+        st.header("Poll Results")
+        results_df = pd.DataFrame(all_responses)
+        for question in questions:
+            st.write(f"**{question}**")
+            response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
+            st.bar_chart(response_data)
+except Exception as e:
+    st.error(f"An error occurred: {e}")
+
+# Debugging: Print all responses
+st.write("All responses from the sheet:")
+st.write(all_responses)
