@@ -15,6 +15,7 @@ def main():
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
     worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
     worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
+    worksheet_poll_3 = spreadsheet.worksheet("Poll 3")
 
     st.header("Previous Rankings")
     try:
@@ -25,7 +26,16 @@ def main():
             results_df_poll_1["Rank"] = pd.to_numeric(results_df_poll_1["Rank"])
             average_ranks_poll_1 = results_df_poll_1.groupby("Choice")["Rank"].mean().reset_index()
             average_ranks_poll_1.columns = ["Choice", "Average Rank"]
-            average_ranks_poll_1["Poll"] = "Poll 1"
+
+            # Display the results as a bar chart for Poll 1
+            chart_poll_1 = alt.Chart(average_ranks_poll_1).mark_bar(color='blue').encode(
+                x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
+                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+            ).properties(
+                title="Average Ranking of Choices - Poll 1"
+            )
+
+            st.altair_chart(chart_poll_1, use_container_width=True)
 
         # Fetch data from Poll 2
         all_rankings_poll_2 = worksheet_poll_2.get_all_records()
@@ -34,21 +44,34 @@ def main():
             results_df_poll_2["Rank"] = pd.to_numeric(results_df_poll_2["Rank"])
             average_ranks_poll_2 = results_df_poll_2.groupby("Choice")["Rank"].mean().reset_index()
             average_ranks_poll_2.columns = ["Choice", "Average Rank"]
-            average_ranks_poll_2["Poll"] = "Poll 2"
 
-        # Combine data for both polls
-        combined_df = pd.concat([average_ranks_poll_1, average_ranks_poll_2])
+            # Display the results as a bar chart for Poll 2
+            chart_poll_2 = alt.Chart(average_ranks_poll_2).mark_bar(color='green').encode(
+                x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
+                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+            ).properties(
+                title="Average Ranking of Choices - Poll 2"
+            )
 
-        # Display the results as a bar chart with different colors for each poll
-        chart = alt.Chart(combined_df).mark_bar().encode(
-            x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-            y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice")),
-            color=alt.Color("Poll:N", legend=alt.Legend(title="Poll"))
-        ).properties(
-            title="Average Ranking of Choices"
-        )
+            st.altair_chart(chart_poll_2, use_container_width=True)
 
-        st.altair_chart(chart, use_container_width=True)
+        # Fetch data from Poll 3
+        all_rankings_poll_3 = worksheet_poll_3.get_all_records()
+        if all_rankings_poll_3:
+            results_df_poll_3 = pd.DataFrame(all_rankings_poll_3, columns=["Rank", "Choice"])
+            results_df_poll_3["Rank"] = pd.to_numeric(results_df_poll_3["Rank"])
+            average_ranks_poll_3 = results_df_poll_3.groupby("Choice")["Rank"].mean().reset_index()
+            average_ranks_poll_3.columns = ["Choice", "Average Rank"]
+
+            # Display the results as a bar chart for Poll 3
+            chart_poll_3 = alt.Chart(average_ranks_poll_3).mark_bar(color='red').encode(
+                x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
+                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice"))
+            ).properties(
+                title="Average Ranking of Choices - Poll 3"
+            )
+
+            st.altair_chart(chart_poll_3, use_container_width=True)
 
     except Exception as e:
         st.error(f"An error occurred: {e}")

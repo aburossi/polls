@@ -19,12 +19,15 @@ def main():
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
     worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
     worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
+    worksheet_poll_3 = spreadsheet.worksheet("Poll 3")
 
     # Check if headers are already present for both polls; if not, add them
     if worksheet_poll_1.row_count == 0:
         worksheet_poll_1.append_row(["Rank", "Choice"])
     if worksheet_poll_2.row_count == 0:
         worksheet_poll_2.append_row(["Rank", "Choice"])
+    if worksheet_poll_3.row_count == 0:
+        worksheet_poll_3.append_row(["Rank", "Choice"])
 
     # Initialize cookies manager
     cookies = EncryptedCookieManager(prefix="rank_", password=credentials_dict["cookie_password"])
