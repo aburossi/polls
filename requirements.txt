@@ -3,4 +3,3 @@ pandas
 gspread
 oauth2client
 streamlit_cookies_manager
-altair
