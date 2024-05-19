@@ -13,7 +13,6 @@ questions = [
 options = ["A", "B", "C", "D"]
 
 # Initialize Google Sheets client
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 credentials_dict = st.secrets["google_credentials"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
 client = gspread.authorize(credentials)
