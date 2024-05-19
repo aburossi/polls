@@ -23,12 +23,6 @@ def add_question():
     st.session_state.option3 = ""
     st.session_state.option4 = ""
 
-def submit_poll():
-    st.session_state.responses.append({
-        "question": st.session_state.questions[st.session_state.current_question]["question"],
-        "answer": st.session_state.selected_option
-    })
-
 # Initialize session state
 initialize_state()
 
@@ -45,15 +39,16 @@ st.sidebar.button("Add Question", on_click=add_question)
 if st.session_state.questions:
     st.header("Classroom Poll")
 
+    responses = []
     for idx, q in enumerate(st.session_state.questions):
         st.write(f"**{q['question']}**")
-        st.radio("", q['options'], key=f"poll_q_{idx}")
+        response = st.radio("", q['options'], key=f"poll_q_{idx}")
+        responses.append(response)
 
     if st.button("Submit Poll"):
-        for idx, q in enumerate(st.session_state.questions):
-            response = st.session_state[f"poll_q_{idx}"]
+        for idx, response in enumerate(responses):
             st.session_state.responses.append({
-                "question": q['question'],
+                "question": st.session_state.questions[idx]['question'],
                 "answer": response
             })
         st.success("Responses submitted successfully!")
