@@ -34,11 +34,8 @@ else:
 def add_input_to_sheet(input_text):
     worksheet.append_row([input_text])
 
-def get_all_inputs():
-    return worksheet.col_values(1)
-
 def main():
-    st.title("PinBoard")
+    st.title("PinBoard - Input")
 
     if st.session_state.has_submitted:
         st.write("You have already submitted text today. Thank you!")
@@ -54,15 +51,7 @@ def main():
                 st.session_state.has_submitted = True
                 st.success("Text hinzugefügt!")
             else:
-                st.error("Please enter some text")
-
-    st.header("🧾")
-
-    all_inputs = get_all_inputs()
-    if all_inputs:
-        for input_text in all_inputs:
-            st.markdown(f"> {input_text}")
-            st.markdown("<hr>", unsafe_allow_html=True)
+                st.error("Bitte geben Sie einen Text ein")
 
 if __name__ == "__main__":
     main()
