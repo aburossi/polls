@@ -5,8 +5,9 @@ import datetime
 from streamlit_cookies_manager import EncryptedCookieManager
 
 def main():
-    # Define the choices
-    choices = ["Option A", "Option B", "Option C", "Option D"]
+    # Define the choices for both polls
+    choices_poll_1 = ["Option A", "Option B", "Option C", "Option D"]
+    choices_poll_2 = ["Option E", "Option F", "Option G", "Option H"]
 
     # Load credentials from Streamlit secrets
     credentials_dict = st.secrets["google_credentials"]
@@ -16,11 +17,14 @@ def main():
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
     client = gspread.authorize(credentials)
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
-    worksheet = spreadsheet.sheet1
+    worksheet_poll_1 = spreadsheet.worksheet("Poll 1")
+    worksheet_poll_2 = spreadsheet.worksheet("Poll 2")
 
-    # Check if headers are already present; if not, add them
-    if worksheet.row_count == 0:
-        worksheet.append_row(["Rank", "Choice"])
+    # Check if headers are already present for both polls; if not, add them
+    if worksheet_poll_1.row_count == 0:
+        worksheet_poll_1.append_row(["Rank", "Choice"])
+    if worksheet_poll_2.row_count == 0:
+        worksheet_poll_2.append_row(["Rank", "Choice"])
 
     # Initialize cookies manager
     cookies = EncryptedCookieManager(prefix="rank_", password=credentials_dict["cookie_password"])
@@ -42,26 +46,28 @@ def main():
     if st.session_state.has_submitted:
         st.write("You have already submitted your rankings today. Thank you!")
     else:
-        # Create containers to hold the rankings
-        rankings = {}
+        # Function to create ranking selectors and handle submissions
+        def create_ranking_poll(choices, worksheet, poll_name):
+            rankings = {}
+            for i in range(1, len(choices) + 1):
+                available_choices = [choice for choice in choices if choice not in rankings.values()]
+                rankings[i] = st.selectbox(f"{poll_name} - Rank {i}", available_choices, key=f"{poll_name}_{i}")
 
-        # Loop through the choices to create ranking selectors
-        for i in range(1, len(choices) + 1):
-            available_choices = [choice for choice in choices if choice not in rankings.values()]
-            rankings[i] = st.selectbox(f"Rank {i}", available_choices, key=i)
+            # Function to add rankings to the Google Sheet
+            def add_rankings_to_sheet(rankings):
+                rows = [[rank, choice] for rank, choice in rankings.items()]
+                worksheet.append_rows(rows)
 
-        # Function to add rankings to the Google Sheet
-        def add_rankings_to_sheet(rankings):
-            rows = [[rank, choice] for rank, choice in rankings.items()]
-            worksheet.append_rows(rows)
+            if st.button(f"Submit {poll_name} Rankings"):
+                add_rankings_to_sheet(rankings)
+                cookies["last_submission"] = datetime.datetime.now().isoformat()
+                cookies.save()
+                st.session_state.has_submitted = True
+                st.success(f"{poll_name} Rankings submitted successfully!")
 
-        # Display the rankings and submit button
-        if st.button("Submit Rankings"):
-            add_rankings_to_sheet(rankings)
-            cookies["last_submission"] = datetime.datetime.now().isoformat()
-            cookies.save()
-            st.session_state.has_submitted = True
-            st.success("Rankings submitted successfully!")
+        # Create ranking polls
+        create_ranking_poll(choices_poll_1, worksheet_poll_1, "Poll 1")
+        create_ranking_poll(choices_poll_2, worksheet_poll_2, "Poll 2")
 
 if __name__ == "__main__":
     main()
