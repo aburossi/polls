@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Define static questions and answers
 questions = [
@@ -10,6 +12,23 @@ questions = [
 
 options = ["A", "B", "C", "D"]
 
+# Initialize Google Sheets client
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+credentials_dict = st.secrets["google_credentials"]
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
+client = gspread.authorize(credentials)
+spreadsheet = client.open("ClassroomPollResponses")  # Replace with your spreadsheet name
+worksheet = spreadsheet.sheet1
+
+# Function to add responses to the Google Sheet
+def add_responses_to_sheet(responses):
+    for question, answer in responses.items():
+        worksheet.append_row([question, answer])
+
+# Function to get all responses from the Google Sheet
+def get_all_responses():
+    return worksheet.get_all_records()
+
 # Initialize session state
 if "responses" not in st.session_state:
     st.session_state.responses = {q: [] for q in questions}
@@ -17,21 +36,22 @@ if "responses" not in st.session_state:
 # Display questions for polling
 st.header("Classroom Poll")
 
-responses = []
+responses = {}
 for idx, question in enumerate(questions):
     st.write(f"**{question}**")
     response = st.radio("", options, key=f"poll_q_{idx}")
-    responses.append(response)
+    responses[question] = response
 
 if st.button("Submit Poll"):
-    for idx, response in enumerate(responses):
-        st.session_state.responses[questions[idx]].append(response)
+    add_responses_to_sheet(responses)
     st.success("Responses submitted successfully!")
 
 # Display results
-if any(st.session_state.responses[q] for q in questions):
+all_responses = get_all_responses()
+if all_responses:
     st.header("Poll Results")
+    results_df = pd.DataFrame(all_responses)
     for question in questions:
         st.write(f"**{question}**")
-        response_data = pd.Series(st.session_state.responses[question]).value_counts()
+        response_data = results_df[results_df['question'] == question]['answer'].value_counts()
         st.bar_chart(response_data)
