@@ -20,6 +20,10 @@ def main():
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
     worksheet = spreadsheet.sheet1
 
+    # Check if headers are already present; if not, add them
+    if worksheet.row_count == 0:
+        worksheet.append_row(["Rank", "Choice"])
+
     # Initialize cookies manager
     cookies = EncryptedCookieManager(prefix="rank_", password=credentials_dict["cookie_password"])
 
@@ -67,6 +71,9 @@ def main():
         all_rankings = worksheet.get_all_records()
         if all_rankings:
             results_df = pd.DataFrame(all_rankings, columns=["Rank", "Choice"])
+
+            # Convert "Rank" to numeric
+            results_df["Rank"] = pd.to_numeric(results_df["Rank"])
 
             # Calculate average rank for each choice
             average_ranks = results_df.groupby("Choice")["Rank"].mean().reset_index()
