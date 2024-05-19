@@ -70,9 +70,9 @@ def main():
                 st.success(f"{poll_name} Präferenzen erfolgreich gesendet!")
 
         # Create ranking polls
-        create_ranking_poll(choices_poll_1, worksheet_poll_1, "Poll 1")
-        create_ranking_poll(choices_poll_2, worksheet_poll_2, "Poll 2")
-        create_ranking_poll(choices_poll_3, worksheet_poll_3, "Poll 3")
+        create_ranking_poll(choices_poll_1, worksheet_poll_1, "Umfrage 1")
+        create_ranking_poll(choices_poll_2, worksheet_poll_2, "Umfrage 2")
+        create_ranking_poll(choices_poll_3, worksheet_poll_3, "Umfrage 3")
 
 if __name__ == "__main__":
     main()
