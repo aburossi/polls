@@ -17,7 +17,7 @@ def main():
     worksheet_poll_2 = spreadsheet.worksheet("Umfrage 2")
     worksheet_poll_3 = spreadsheet.worksheet("Umfrage 3")
 
-    st.header("Previous Rankings")
+    st.header("Ranglisten")
 
     def fetch_and_display_poll_data(worksheet, poll_name, color):
         try:
