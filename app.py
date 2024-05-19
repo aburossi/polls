@@ -17,7 +17,7 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 credentials_dict = st.secrets["google_credentials"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
 client = gspread.authorize(credentials)
-spreadsheet = client.open("ClassroomPollResponses")  # Replace with your spreadsheet name
+spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
 worksheet = spreadsheet.sheet1
 
 # Function to add responses to the Google Sheet
