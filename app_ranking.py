@@ -55,7 +55,7 @@ def main():
             rankings = {}
             for i in range(1, len(choices) + 1):
                 available_choices = [choice for choice in choices if choice not in rankings.values()]
-                rankings[i] = st.selectbox(f"{poll_name} - Rank {i}", available_choices, key=f"{poll_name}_{i}")
+                rankings[i] = st.selectbox(f"{poll_name} - Rang {i}", available_choices, key=f"{poll_name}_{i}")
 
             # Function to add rankings to the Google Sheet
             def add_rankings_to_sheet(rankings):
