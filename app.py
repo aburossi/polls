@@ -5,9 +5,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import datetime
 from streamlit_cookies_manager import EncryptedCookieManager
 
-# Load credentials from credentials.json
-with open("credentials.json") as f:
-    credentials_dict = json.load(f)
+# Load credentials from Streamlit secrets
+credentials_dict = st.secrets["google_credentials"]
 
 # Define static questions and answers
 questions = [
