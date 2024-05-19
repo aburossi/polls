@@ -1,13 +1,13 @@
+# poll_app.py
 import streamlit as st
-import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Define static questions and answers
 questions = [
-    "What is the capital of France?",
-    "What is 2 + 2?",
-    "Which is the largest planet?"
+    "Frage 1",
+    "Frage 2",
+    "Frage 3"
 ]
 
 options = ["A", "B", "C", "D"]
@@ -25,46 +25,24 @@ def add_responses_to_sheet(responses):
     rows = [[question, answer] for question, answer in responses.items()]
     worksheet.append_rows(rows)
 
-# Function to get all responses from the Google Sheet
-def get_all_responses():
-    records = worksheet.get_all_records()
-    return pd.DataFrame(records)
-
 # Initialize session state
-if "responses" not in st.session_state:
-    st.session_state.responses = {q: [] for q in questions}
+if "has_submitted" not in st.session_state:
+    st.session_state.has_submitted = False
 
 # Display questions for polling
 st.header("Classroom Poll")
 
-responses = {}
-for idx, question in enumerate(questions):
-    st.write(f"**{question}**")
-    response = st.radio("", options, key=f"poll_q_{idx}")
-    responses[question] = response
+if st.session_state.has_submitted:
+    st.write("You have already submitted your answers. Thank you!")
+else:
+    responses = {}
+    for idx, question in enumerate(questions):
+        st.write(f"**{question}**")
+        response = st.radio("", options, key=f"poll_q_{idx}")
+        responses[question] = response
 
-if st.button("Submit Poll"):
-    add_responses_to_sheet(responses)
-    st.success("Responses submitted successfully!")
+    if st.button("Submit Poll"):
+        add_responses_to_sheet(responses)
+        st.session_state.has_submitted = True
+        st.success("Responses submitted successfully!")
 
-# Display results
-try:
-    all_responses = get_all_responses()
-    if not all_responses.empty:
-        st.header("Poll Results")
-        results_df = pd.DataFrame(all_responses)
-        
-        # Ensure column headers are present
-        if 'Question' not in results_df.columns or 'Answer' not in results_df.columns:
-            st.error("Data format error: Ensure the first row of your Google Sheet contains 'Question' and 'Answer' headers.")
-        else:
-            for question in questions:
-                st.write(f"**{question}**")
-                response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
-                st.bar_chart(response_data)
-except Exception as e:
-    st.error(f"An error occurred: {e}")
-
-# Debugging: Print all responses
-st.write("All responses from the sheet:")
-st.write(all_responses)
