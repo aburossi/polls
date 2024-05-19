@@ -1,6 +1,4 @@
 import streamlit as st
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from streamlit_cookies_manager import EncryptedCookieManager
@@ -31,15 +29,8 @@ else:
 def add_input_to_sheet(input_text):
     worksheet.append_row([input_text])
 
-def get_all_inputs():
-    return worksheet.col_values(1)
-
-def generate_wordcloud(text):
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
-    return wordcloud
-
 def main():
-    st.title("Word Cloud Generator")
+    st.title("Word Cloud Input")
 
     if st.session_state.has_submitted:
         st.write("You have already submitted text today. Thank you!")
@@ -56,20 +47,6 @@ def main():
                 st.success("Text added!")
             else:
                 st.error("Please enter some text")
-
-    if st.button("Generate Word Cloud"):
-        all_inputs = get_all_inputs()
-        combined_text = " ".join(all_inputs)
-        if combined_text.strip():
-            wordcloud = generate_wordcloud(combined_text)
-
-            st.header("Word Cloud")
-            fig, ax = plt.subplots()
-            ax.imshow(wordcloud, interpolation='bilinear')
-            ax.axis("off")
-            st.pyplot(fig)
-        else:
-            st.error("No text available to generate word cloud")
 
 if __name__ == "__main__":
     main()
