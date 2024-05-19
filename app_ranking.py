@@ -7,8 +7,9 @@ from streamlit_cookies_manager import EncryptedCookieManager
 def main():
     # Define the choices for both polls
     choices_poll_1 = ["Option A", "Option B", "Option C", "Option D"]
-    choices_poll_2 = ["Option E", "Option F", "Option G", "Option H"]
-
+    choices_poll_2 = ["Option A", "Option B", "Option C", "Option D"]
+    choices_poll_3 = ["Option A", "Option B", "Option C", "Option D"]
+    
     # Load credentials from Streamlit secrets
     credentials_dict = st.secrets["google_credentials"]
 
@@ -44,10 +45,10 @@ def main():
     else:
         st.session_state.has_submitted = False
 
-    st.title("Rank the Choices from Most Important to Least Important")
+    st.title("Ordnen Sie die folgenden Optionen nach Ihrer Präferenz:")
 
     if st.session_state.has_submitted:
-        st.write("You have already submitted your rankings today. Thank you!")
+        st.write("Sie haben bereits Ihre Präferenzen abgegeben. Bitte warten Sie bis zur nächsten Umfrage.")
     else:
         # Function to create ranking selectors and handle submissions
         def create_ranking_poll(choices, worksheet, poll_name):
@@ -71,6 +72,7 @@ def main():
         # Create ranking polls
         create_ranking_poll(choices_poll_1, worksheet_poll_1, "Poll 1")
         create_ranking_poll(choices_poll_2, worksheet_poll_2, "Poll 2")
+        create_ranking_poll(choices_poll_3, worksheet_poll_3, "Poll 3")
 
 if __name__ == "__main__":
     main()
