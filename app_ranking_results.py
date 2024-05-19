@@ -31,7 +31,7 @@ def main():
             # Display the results as a bar chart for Poll 1
             chart_poll_1 = alt.Chart(average_ranks_poll_1).mark_bar(color='blue').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice", sort=alt.SortField("Average Rank", order="ascending")))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 1"
             )
@@ -50,7 +50,7 @@ def main():
             # Display the results as a bar chart for Poll 2
             chart_poll_2 = alt.Chart(average_ranks_poll_2).mark_bar(color='green').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice", sort=alt.SortField("Average Rank", order="ascending")))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 2"
             )
@@ -69,7 +69,7 @@ def main():
             # Display the results as a bar chart for Poll 3
             chart_poll_3 = alt.Chart(average_ranks_poll_3).mark_bar(color='red').encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Average Rank")),
-                y=alt.Y("Choice:N", sort='-x', axis=alt.Axis(title="Choice", sort=alt.SortField("Average Rank", order="ascending")))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Choice"))
             ).properties(
                 title="Average Ranking of Choices - Poll 3"
             )
