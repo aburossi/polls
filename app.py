@@ -1,8 +1,13 @@
 import streamlit as st
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime
 from streamlit_cookies_manager import EncryptedCookieManager
+
+# Load credentials from credentials.json
+with open("credentials.json") as f:
+    credentials_dict = json.load(f)
 
 # Define static questions and answers
 questions = [
@@ -15,7 +20,6 @@ options = ["A", "B", "C", "D"]
 
 # Initialize Google Sheets client
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-credentials_dict = st.secrets["google_credentials"]
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
 client = gspread.authorize(credentials)
 spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
@@ -27,7 +31,7 @@ def add_responses_to_sheet(responses):
     worksheet.append_rows(rows)
 
 # Initialize cookies manager
-cookies = EncryptedCookieManager(prefix="poll_", password=st.secrets["cookie_password"])
+cookies = EncryptedCookieManager(prefix="poll_", password=credentials_dict["cookie_password"])
 
 if not cookies.ready():
     st.stop()
