@@ -18,9 +18,9 @@ def get_all_inputs():
     return worksheet.col_values(1)
 
 def main():
-    st.title("PinBoard - Display")
+    st.title("🧾")
 
-    st.header("🧾")
+    st.header("")
 
     all_inputs = get_all_inputs()
     if all_inputs:
