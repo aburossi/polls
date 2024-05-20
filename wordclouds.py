@@ -50,7 +50,7 @@ def main():
         st.markdown("[View the word cloud results](https://nuvole.streamlit.app/)")
     else:
         st.header("Deine Wörter")
-        user_input = st.text_area("Enter the text for the word cloud")
+        user_input = st.text_area("👇 💬")
 
         if st.button("Submit"):
             if user_input.strip():
