@@ -34,6 +34,7 @@ def main():
 
     if st.session_state.has_submitted:
         st.write("You have already submitted text today. Thank you!")
+        st.markdown("[View the word cloud results](https://nuvole.streamlit.app/)")
     else:
         st.header("Input Text")
         user_input = st.text_area("Enter the text for the word cloud")
@@ -45,6 +46,7 @@ def main():
                 cookies.save()
                 st.session_state.has_submitted = True
                 st.success("Text added!")
+                st.markdown("[View the word cloud results](https://nuvole.streamlit.app/)")
             else:
                 st.error("Please enter some text")
 
