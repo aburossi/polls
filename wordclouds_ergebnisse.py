@@ -19,7 +19,7 @@ def generate_wordcloud(text):
     return wordcloud
 
 def main():
-    st.title("Word Cloud Generator")
+    st.title("")
 
     all_inputs = get_all_inputs()
     combined_text = " ".join(all_inputs)
@@ -27,7 +27,7 @@ def main():
     if combined_text.strip():
         wordcloud = generate_wordcloud(combined_text)
 
-        st.header("Word Cloud")
+        st.header("")
         fig, ax = plt.subplots()
         ax.imshow(wordcloud, interpolation='bilinear')
         ax.axis("off")
