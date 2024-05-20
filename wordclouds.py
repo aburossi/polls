@@ -30,6 +30,19 @@ def add_input_to_sheet(input_text):
     worksheet.append_row([input_text])
 
 def main():
+    # Add custom CSS for the background image
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-image: url('https://raw.githubusercontent.com/aburossi/polls/main/background.jpg');
+            background-size: cover;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     st.title("Word Cloud Input")
 
     if st.session_state.has_submitted:
