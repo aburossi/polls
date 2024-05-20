@@ -43,13 +43,13 @@ def main():
         unsafe_allow_html=True
     )
 
-    st.title("Word Cloud Input")
+    st.title("")
 
     if st.session_state.has_submitted:
         st.write("You have already submitted text today. Thank you!")
         st.markdown("[View the word cloud results](https://nuvole.streamlit.app/)")
     else:
-        st.header("Input Text")
+        st.header("Deine Wörter")
         user_input = st.text_area("Enter the text for the word cloud")
 
         if st.button("Submit"):
