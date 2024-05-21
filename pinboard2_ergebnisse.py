@@ -18,7 +18,7 @@ def get_all_entries():
     return worksheet.get_all_records()
 
 def main():
-    st.title("🧾")
+    st.title("🧾 PinBoard Entries")
 
     st.header("Alle Antworten")
 
@@ -27,8 +27,11 @@ def main():
         for entry in all_entries:
             question_number = entry.get("Number", "Keine Nummer")
             answer_text = entry.get("Answer", "Keine Antwort")
+            date = entry.get("Date", "Kein Datum")
+            time = entry.get("Time", "Keine Zeit")
             st.markdown(f"**Antwort zu Frage {question_number}:**")
             st.markdown(f"> {answer_text}")
+            st.markdown(f"*Datum: {date}, Zeit: {time}*")
             st.markdown("<hr>", unsafe_allow_html=True)
     else:
         st.write("Keine Texte verfügbar.")
