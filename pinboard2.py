@@ -12,7 +12,7 @@ client = gspread.authorize(credentials)
 # Attempt to open the specific spreadsheet
 try:
     spreadsheet = client.open("Pinnwand")  # Replace with your spreadsheet name
-    worksheet = spreadsheet.sheet2
+    worksheet = spreadsheet.Sheet2
 except Exception as e:
     st.error(f"Error opening spreadsheet: {e}")
 
