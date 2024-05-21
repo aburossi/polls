@@ -18,7 +18,7 @@ def get_all_entries():
     return worksheet.get_all_records()
 
 def main():
-    st.title("🧾 PinBoard Entries")
+    st.title("🧾")
 
     st.header("Alle Antworten")
 
