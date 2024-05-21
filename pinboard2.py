@@ -12,7 +12,7 @@ client = gspread.authorize(credentials)
 # Attempt to open the specific spreadsheet
 try:
     spreadsheet = client.open("Pinnwand")  # Replace with your spreadsheet name
-    worksheet = spreadsheet.Sheet2
+    worksheet = spreadsheet.worksheet("Sheet2")  # Replace with your sheet name
 except Exception as e:
     st.error(f"Error opening spreadsheet: {e}")
 
@@ -20,8 +20,7 @@ except Exception as e:
 def ensure_headers():
     headers = worksheet.row_values(1)
     if headers != ["Number", "Answer"]:
-        worksheet.update('A1', "Number")
-        worksheet.update('B1', "Answer")
+        worksheet.update('A1', [["Number", "Answer"]])
 
 ensure_headers()
 
