@@ -1,8 +1,6 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from streamlit_cookies_manager import EncryptedCookieManager
-import datetime
 
 # Load credentials from Streamlit secrets
 credentials_dict = st.secrets["google_credentials"]
@@ -16,51 +14,27 @@ try:
 except Exception as e:
     st.error(f"Error opening spreadsheet: {e}")
 
-# Check if headers exist and add them if they don't
-def ensure_headers():
-    headers = worksheet.row_values(1)
-    if headers != ["Number", "Answer"]:
-        worksheet.update('A1', [["Number", "Answer"]])
-
-ensure_headers()
-
-# Initialize cookies manager
-cookies = EncryptedCookieManager(prefix="pin_", password=credentials_dict["cookie_password"])
-
-if not cookies.ready():
-    st.stop()
-
-# Check if the user has submitted in the last 24 hours
-last_submission = cookies.get("last_submission")
-if last_submission:
-    last_submission_time = datetime.datetime.fromisoformat(last_submission)
-    if (datetime.datetime.now() - last_submission_time).days < 1:
-        st.session_state.has_submitted = True
-else:
-    st.session_state.has_submitted = False
-
-def add_input_to_sheet(question_number, input_text):
-    worksheet.append_row([question_number, input_text])
+def get_all_entries():
+    return worksheet.get_all_records()
 
 def main():
-    st.title("PinBoard - Input")
+    st.title("🧾 PinBoard Entries")
 
-    if st.session_state.has_submitted:
-        st.write("You have already submitted text today. Thank you!")
+    st.header("Alle Antworten")
+
+    all_entries = get_all_entries()
+    if all_entries:
+        for entry in all_entries:
+            question_number = entry.get("Number", "Keine Nummer")
+            answer_text = entry.get("Answer", "Keine Antwort")
+            date = entry.get("Date", "Kein Datum")
+            time = entry.get("Time", "Keine Zeit")
+            st.markdown(f"**Antwort zu Frage {question_number}:**")
+            st.markdown(f"> {answer_text}")
+            st.markdown(f"*Datum: {date}, Zeit: {time}*")
+            st.markdown("<hr>", unsafe_allow_html=True)
     else:
-        st.header("Deine Antwort")
-        question_number = st.number_input("Fragenummer", min_value=1, step=1)
-        user_input = st.text_area("Tippe einen kurzen Text ein")
-
-        if st.button("Senden"):
-            if user_input.strip() and question_number:
-                add_input_to_sheet(question_number, user_input)
-                cookies["last_submission"] = datetime.datetime.now().isoformat()
-                cookies.save()
-                st.session_state.has_submitted = True
-                st.success("Text hinzugefügt!")
-            else:
-                st.error("Bitte geben Sie eine Fragenummer und einen Text ein")
+        st.write("Keine Texte verfügbar.")
 
 if __name__ == "__main__":
     main()
