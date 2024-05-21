@@ -16,6 +16,15 @@ try:
 except Exception as e:
     st.error(f"Error opening spreadsheet: {e}")
 
+# Check if headers exist and add them if they don't
+def ensure_headers():
+    headers = worksheet.row_values(1)
+    if headers != ["Number", "Answer"]:
+        worksheet.update('A1', "Number")
+        worksheet.update('B1', "Answer")
+
+ensure_headers()
+
 # Initialize cookies manager
 cookies = EncryptedCookieManager(prefix="pin_", password=credentials_dict["cookie_password"])
 
@@ -32,7 +41,7 @@ else:
     st.session_state.has_submitted = False
 
 def add_input_to_sheet(question_number, input_text):
-    worksheet.append_row([f"Antwort zu Frage: {question_number}", input_text])
+    worksheet.append_row([question_number, input_text])
 
 def main():
     st.title("PinBoard - Input")
