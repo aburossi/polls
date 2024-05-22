@@ -24,10 +24,9 @@ client = gspread.authorize(credentials)
 spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
 worksheet = spreadsheet.sheet1
 
-# Function to add responses to the Google Sheet
-def add_responses_to_sheet(responses):
-    rows = [[question, answer] for question, answer in responses.items()]
-    worksheet.append_rows(rows)
+# Function to add response to the Google Sheet
+def add_response_to_sheet(question, answer):
+    worksheet.append_row([question, answer])
 
 # Initialize cookies manager
 cookies = EncryptedCookieManager(prefix="poll_", password=credentials_dict["cookie_password"])
@@ -50,15 +49,21 @@ st.header("Umfrage")
 if st.session_state.has_submitted:
     st.write("You have already submitted your answers today. Thank you!")
 else:
-    responses = {}
     for idx, question in enumerate(questions):
         st.write(f"**{question}**")
         response = st.radio("", options, key=f"poll_q_{idx}")
-        responses[question] = response
 
-    if st.button("Submit Poll"):
-        add_responses_to_sheet(responses)
-        cookies["last_submission"] = datetime.datetime.now().isoformat()
-        cookies.save()
-        st.session_state.has_submitted = True
-        st.success("Responses submitted successfully!")
+        if st.button(f"Submit Answer for Question {idx + 1}", key=f"submit_q_{idx}"):
+            if response:
+                add_response_to_sheet(question, response)
+                cookies[f"last_submission_q_{idx}"] = datetime.datetime.now().isoformat()
+                cookies.save()
+                st.success(f"Response for '{question}' submitted successfully!")
+            else:
+                st.error("Please select an option before submitting.")
+
+# Update submission status
+if all(cookies.get(f"last_submission_q_{idx}") for idx in range(len(questions))):
+    st.session_state.has_submitted = True
+    cookies["last_submission"] = datetime.datetime.now().isoformat()
+    cookies.save()
