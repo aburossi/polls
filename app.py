@@ -53,7 +53,7 @@ else:
         st.write(f"**{question}**")
         response = st.radio("", options, key=f"poll_q_{idx}")
 
-        if st.button(f"Antworten für Frage {idx + 1}", key=f"submit_q_{idx}"):
+        if st.button(f"Antworten für Frage {idx + 1} senden", key=f"submit_q_{idx}"):
             if response:
                 add_response_to_sheet(question, response)
                 cookies[f"last_submission_q_{idx}"] = datetime.datetime.now().isoformat()
