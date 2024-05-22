@@ -10,9 +10,9 @@ credentials_dict = st.secrets["google_credentials"]
 
 # Define static questions and answers
 questions = [
-    "What is the capital of France?",
-    "What is 2 + 2?",
-    "Which is the largest planet?"
+    "1. Frage",
+    "2. Frage",
+    "3. Frage"
 ]
 
 options = ["A", "B", "C", "D"]
@@ -45,7 +45,7 @@ else:
     st.session_state.has_submitted = False
 
 # Display questions for polling
-st.header("Classroom Poll")
+st.header("Umfrage")
 
 if st.session_state.has_submitted:
     st.write("You have already submitted your answers today. Thank you!")
