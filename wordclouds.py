@@ -37,7 +37,7 @@ def main():
         st.header("Deine Wörter")
         user_input = st.text_area("👇 💬")
 
-        if st.button("Submit"):
+        if st.button("Senden"):
             if user_input.strip():
                 add_input_to_sheet(user_input)
                 st.session_state.has_submitted = True
