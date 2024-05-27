@@ -11,21 +11,6 @@ client = gspread.authorize(credentials)
 spreadsheet = client.open("WordCloudInputs")  # Replace with your spreadsheet name
 worksheet = spreadsheet.sheet1
 
-# Initialize cookies manager
-cookies = EncryptedCookieManager(prefix="wc_", password=credentials_dict["cookie_password"])
-
-if not cookies.ready():
-    st.stop()
-
-# Check if the user has submitted in the last 24 hours
-last_submission = cookies.get("last_submission")
-if last_submission:
-    last_submission_time = datetime.datetime.fromisoformat(last_submission)
-    if (datetime.datetime.now() - last_submission_time).days < 1:
-        st.session_state.has_submitted = True
-else:
-    st.session_state.has_submitted = False
-
 def add_input_to_sheet(input_text):
     worksheet.append_row([input_text])
 
