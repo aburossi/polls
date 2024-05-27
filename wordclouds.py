@@ -21,27 +21,39 @@ def main():
             background-image: url('https://raw.githubusercontent.com/aburossi/polls/main/background.jpg');
             background-size: cover;
         }
+        .submitted {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    st.title("")
-
     if 'has_submitted' not in st.session_state:
         st.session_state.has_submitted = False
 
     if st.session_state.has_submitted:
-        st.write("Thank you for your submission!")
+        st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
     else:
+        st.title("")
         st.header("Deine Wörter")
         user_input = st.text_area("👇 💬")
 
-        if st.button("Senden"):
+        if st.button("Submit"):
             if user_input.strip():
                 add_input_to_sheet(user_input)
                 st.session_state.has_submitted = True
-                st.success("Thank you for your submission!")
+                st.experimental_rerun()  # To update the UI after submission
             else:
                 st.error("Please enter some text")
 
