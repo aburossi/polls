@@ -1,12 +1,14 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import datetime
 
 # Load credentials from Streamlit secrets
 credentials_dict = st.secrets["google_credentials"]
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"])
+client = gspread.authorize(credentials)
+spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
+worksheet = spreadsheet.sheet1
 
-# Define static questions and answers
 questions = [
     "1. Frage",
     "2. Frage",
@@ -15,45 +17,64 @@ questions = [
 
 options = ["Select an option", "A", "B", "C", "D"]
 
-# Initialize Google Sheets client
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
-client = gspread.authorize(credentials)
-spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
-worksheet = spreadsheet.sheet1
-
-# Function to add response to the Google Sheet
 def add_response_to_sheet(question, answer):
     worksheet.append_row([question, answer])
 
 def main():
-    st.header("Umfrage")
+    # Add custom CSS for the background image
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-image: url('https://raw.githubusercontent.com/aburossi/polls/main/background.jpg');
+            background-size: cover;
+        }
+        .submitted {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Initialize submission state
-    if 'submitted_questions' not in st.session_state:
-        st.session_state.submitted_questions = []
+    if 'has_submitted' not in st.session_state:
+        st.session_state.has_submitted = False
 
-    # Collect responses for all questions
-    responses = {}
-    for idx, question in enumerate(questions):
-        st.write(f"**{question}**")
-        response = st.selectbox("", options, key=f"poll_q_{idx}")
-        responses[question] = response
+    if st.session_state.has_submitted:
+        st.markdown('<div class="submitted"><h2>Vielen Dank!</h2></div>', unsafe_allow_html=True)
+    else:
+        st.header("Umfrage")
 
-    # Submission button for all questions
-    if st.button("Submit all responses"):
-        all_answered = True
-        for question, response in responses.items():
-            if response == "Select an option":
-                st.error(f"Please select an option for: {question}")
-                all_answered = False
-        
-        if all_answered:
+        # Collect responses for all questions
+        responses = {}
+        for idx, question in enumerate(questions):
+            st.write(f"**{question}**")
+            response = st.selectbox("", options, key=f"poll_q_{idx}")
+            responses[question] = response
+
+        # Submission button for all questions
+        if st.button("Submit all responses"):
+            all_answered = True
             for question, response in responses.items():
-                add_response_to_sheet(question, response)
-            st.session_state.submitted_questions.extend(range(len(questions)))
-            st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
-            st.experimental_rerun()  # Rerun to show the submission thank you message
+                if response == "Select an option":
+                    st.error(f"Please select an option for: {question}")
+                    all_answered = False
+            
+            if all_answered:
+                for question, response in responses.items():
+                    add_response_to_sheet(question, response)
+                st.session_state.has_submitted = True
+                st.experimental_rerun()  # Rerun to show the submission thank you message
 
 if __name__ == "__main__":
     main()
