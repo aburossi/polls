@@ -43,13 +43,13 @@ def main():
         st.session_state.has_submitted = False
 
     if st.session_state.has_submitted:
-        st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
+        st.markdown('<div class="submitted"><h2>Vielen Dank!</h2></div>', unsafe_allow_html=True)
     else:
         st.title("")
-        st.header("Deine Wörter")
+        st.header("Deine Wörter. Einzeln oder nacheinander")
         user_input = st.text_area("👇 💬")
 
-        if st.button("Submit"):
+        if st.button("Senden"):
             if user_input.strip():
                 add_input_to_sheet(user_input)
                 st.session_state.has_submitted = True
