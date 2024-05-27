@@ -27,33 +27,33 @@ def add_response_to_sheet(question, answer):
     worksheet.append_row([question, answer])
 
 def main():
-    
+    st.header("Umfrage")
 
     # Initialize submission state
     if 'submitted_questions' not in st.session_state:
         st.session_state.submitted_questions = []
 
-    st.header("Umfrage")
+    # Collect responses for all questions
+    responses = {}
+    for idx, question in enumerate(questions):
+        st.write(f"**{question}**")
+        response = st.radio("", options, key=f"poll_q_{idx}")
+        responses[question] = response
 
-    # Check if all questions have been answered
-    if len(st.session_state.submitted_questions) == len(questions):
-        st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
-    else:
-        for idx, question in enumerate(questions):
-            # Only show the next question if the previous one has been answered
-            if idx > len(st.session_state.submitted_questions):
-                break
-            
-            st.write(f"**{question}**")
-            response = st.radio("", options, key=f"poll_q_{idx}")
-
-            if st.button(f"Antworten für Frage {idx + 1} senden", key=f"submit_q_{idx}"):
-                if response:
-                    add_response_to_sheet(question, response)
-                    st.session_state.submitted_questions.append(idx)
-                    st.experimental_rerun()  # Rerun to show the next question
-                else:
-                    st.error("Please select an option before submitting.")
+    # Submission button for all questions
+    if st.button("Submit all responses"):
+        all_answered = True
+        for question, response in responses.items():
+            if not response:
+                st.error(f"Please select an option for: {question}")
+                all_answered = False
+        
+        if all_answered:
+            for question, response in responses.items():
+                add_response_to_sheet(question, response)
+            st.session_state.submitted_questions.extend(range(len(questions)))
+            st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
+            st.experimental_rerun()  # Rerun to show the submission thank you message
 
 if __name__ == "__main__":
     main()
