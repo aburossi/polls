@@ -27,28 +27,32 @@ def add_response_to_sheet(question, answer):
     worksheet.append_row([question, answer])
 
     # Initialize submission state
-    if 'submitted_questions' not in st.session_state:
-        st.session_state.submitted_questions = []
+    if 'has_submitted' not in st.session_state:
+        st.session_state.has_submitted = False
 
     st.header("Umfrage")
 
-    if len(st.session_state.submitted_questions) == len(questions):
+    if st.session_state.has_submitted:
         st.markdown('<div class="submitted"><h2>Thank you for your submission!</h2></div>', unsafe_allow_html=True)
     else:
         for idx, question in enumerate(questions):
-            if idx > len(st.session_state.submitted_questions):
-                break  # Only show the next question if the previous one has been answered
-            
             st.write(f"**{question}**")
             response = st.radio("", options, key=f"poll_q_{idx}")
 
             if st.button(f"Antworten für Frage {idx + 1} senden", key=f"submit_q_{idx}"):
                 if response:
                     add_response_to_sheet(question, response)
-                    st.session_state.submitted_questions.append(idx)
-                    st.experimental_rerun()  # Rerun to show the next question
+                    if 'submitted_questions' not in st.session_state:
+                        st.session_state.submitted_questions = set()
+                    st.session_state.submitted_questions.add(idx)
+                    st.success(f"Antwort '{question}' erfolgreich gesendet!")
                 else:
                     st.error("Please select an option before submitting.")
+
+        # Update submission status if all questions have been answered
+        if len(st.session_state.get('submitted_questions', set())) == len(questions):
+            st.session_state.has_submitted = True
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
