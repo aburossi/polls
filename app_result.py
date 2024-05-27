@@ -38,15 +38,10 @@ colors = ['#FF6347', '#4682B4', '#32CD32']  # Different colors for each question
 # Display results
 try:
     all_responses = get_all_responses()
-    st.write("Debug: All Responses DataFrame")
-    st.write(all_responses)
     
     if not all_responses.empty:
         st.header("Poll Results")
         results_df = pd.DataFrame(all_responses)
-        
-        st.write("Debug: Column Names")
-        st.write(results_df.columns)
         
         # Ensure column headers are present
         if 'Question' not in results_df.columns or 'Answer' not in results_df.columns:
@@ -60,7 +55,3 @@ try:
         st.write("No responses found.")
 except Exception as e:
     st.error(f"An error occurred: {e}")
-
-# Debugging: Print all responses
-st.write("All responses from the sheet:")
-st.write(all_responses)
