@@ -1,4 +1,3 @@
-# results_app.py
 import streamlit as st
 import pandas as pd
 import gspread
@@ -6,9 +5,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # Define static questions and answers
 questions = [
-    "Frage 1",
-    "Frage 2",
-    "Frage 3"
+    "1. Frage",
+    "2. Frage",
+    "3. Frage"
 ]
 
 # Initialize Google Sheets client
@@ -39,6 +38,8 @@ try:
                 st.write(f"**{question}**")
                 response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
                 st.bar_chart(response_data)
+    else:
+        st.write("No responses found.")
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
