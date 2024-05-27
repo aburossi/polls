@@ -13,7 +13,7 @@ questions = [
     "3. Frage"
 ]
 
-options = ["A", "B", "C", "D"]
+options = ["Select an option", "A", "B", "C", "D"]
 
 # Initialize Google Sheets client
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -37,14 +37,14 @@ def main():
     responses = {}
     for idx, question in enumerate(questions):
         st.write(f"**{question}**")
-        selected_option = st.radio("", options, key=f"poll_q_{idx}", index=-1)
-        responses[question] = selected_option
+        response = st.selectbox("", options, key=f"poll_q_{idx}")
+        responses[question] = response
 
     # Submission button for all questions
     if st.button("Submit all responses"):
         all_answered = True
         for question, response in responses.items():
-            if not response:
+            if response == "Select an option":
                 st.error(f"Please select an option for: {question}")
                 all_answered = False
         
