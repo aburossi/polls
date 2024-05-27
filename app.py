@@ -37,8 +37,8 @@ def main():
     responses = {}
     for idx, question in enumerate(questions):
         st.write(f"**{question}**")
-        response = st.radio("", options, key=f"poll_q_{idx}")
-        responses[question] = response
+        selected_option = st.radio("", options, key=f"poll_q_{idx}", index=-1)
+        responses[question] = selected_option
 
     # Submission button for all questions
     if st.button("Submit all responses"):
