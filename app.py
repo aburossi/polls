@@ -60,21 +60,14 @@ def main():
         for idx, question in enumerate(questions):
             st.write(f"**{question}**")
             response = st.selectbox("", options, key=f"poll_q_{idx}")
-            responses[question] = response
+            responses[question] = response if response != "Select an option" else ""
 
         # Submission button for all questions
         if st.button("Submit all responses"):
-            all_answered = True
             for question, response in responses.items():
-                if response == "Select an option":
-                    st.error(f"Please select an option for: {question}")
-                    all_answered = False
-            
-            if all_answered:
-                for question, response in responses.items():
-                    add_response_to_sheet(question, response)
-                st.session_state.has_submitted = True
-                st.experimental_rerun()  # Rerun to show the submission thank you message
+                add_response_to_sheet(question, response)
+            st.session_state.has_submitted = True
+            st.experimental_rerun()  # Rerun to show the submission thank you message
 
 if __name__ == "__main__":
     main()
