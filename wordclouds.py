@@ -28,15 +28,22 @@ def main():
 
     st.title("")
 
-    st.header("Deine Wörter")
-    user_input = st.text_area("👇 💬")
+    if 'has_submitted' not in st.session_state:
+        st.session_state.has_submitted = False
 
-    if st.button("Submit"):
-        if user_input.strip():
-            add_input_to_sheet(user_input)
-            st.success("Text added!")
-        else:
-            st.error("Please enter some text")
+    if st.session_state.has_submitted:
+        st.write("Thank you for your submission!")
+    else:
+        st.header("Deine Wörter")
+        user_input = st.text_area("👇 💬")
+
+        if st.button("Submit"):
+            if user_input.strip():
+                add_input_to_sheet(user_input)
+                st.session_state.has_submitted = True
+                st.success("Thank you for your submission!")
+            else:
+                st.error("Please enter some text")
 
 if __name__ == "__main__":
     main()
