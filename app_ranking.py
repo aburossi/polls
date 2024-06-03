@@ -49,9 +49,9 @@ def create_ranking_poll(choices, worksheet, poll_name):
         available_choices = [choice for choice in choices if choice not in rankings.values()]
         rankings[i] = st.selectbox(f"Rangordnung {i}", available_choices, key=f"{poll_name}_{i}")
 
-    if st.button(f"Submit {poll_name} Preferences"):
+    if st.button(f"Rangliste senden"):
         add_rankings_to_sheet(worksheet, rankings)
-        st.success(f"{poll_name} preferences successfully submitted!")
+        st.success(f"Rangliste erfolgreich gesendet!")
         st.session_state["current_page"] += 1
         st.experimental_rerun()
 
