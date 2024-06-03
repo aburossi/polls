@@ -5,7 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 # Constants
 SPREADSHEET_NAME = "Umfrage"  # Replace with your spreadsheet name
 QUESTIONS = [
-    "1. Frage",
+    "1. Q",
     "2. Frage",
     "3. Frage"
 ]
