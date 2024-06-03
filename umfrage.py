@@ -1,7 +1,6 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import time
 
 # Constants
 SPREADSHEET_NAME = "Umfrage"  # The name of the spreadsheet
@@ -33,9 +32,9 @@ def get_worksheet(client, sheet_name, worksheet_name):
         return None
 
 # Function to add response to Google Sheets
-def add_response_to_sheet(worksheet, question, answer):
+def add_response_to_sheet(worksheet, question, answer, username):
     try:
-        worksheet.append_row([question, answer])
+        worksheet.append_row([username, question, answer])
     except Exception as e:
         st.error(f"Failed to add response: {e}")
 
@@ -72,9 +71,13 @@ def main():
             if st.button("Submit response"):
                 if response:
                     st.session_state.responses[question] = response
-                    add_response_to_sheet(answer_worksheet, question, response)
-                    st.session_state.current_question += 1
-                    st.experimental_rerun()  # Rerun to load the next question
+                    username = st.text_input("Enter your username:")
+                    if username:
+                        add_response_to_sheet(answer_worksheet, question, response, username)
+                        st.session_state.current_question += 1
+                        st.experimental_rerun()  # Rerun to load the next question
+                    else:
+                        st.error("Please enter your username before submitting.")
                 else:
                     st.error("Please select an option before submitting.")
         else:
