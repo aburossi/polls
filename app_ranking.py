@@ -20,6 +20,9 @@ def get_worksheet(client, sheet_name, worksheet_name):
     spreadsheet = client.open(sheet_name)
     try:
         worksheet = spreadsheet.worksheet(worksheet_name)
+        # Check if the first row is set correctly
+        if worksheet.row_count == 0 or worksheet.row_values(1) != ["Rank", "Choice"]:
+            worksheet.update('A1', [["Rank", "Choice"]])
     except gspread.exceptions.WorksheetNotFound:
         worksheet = spreadsheet.add_worksheet(title=worksheet_name, rows="1", cols="2")
         worksheet.append_row(["Rank", "Choice"])
