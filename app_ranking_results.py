@@ -15,7 +15,6 @@ def main():
     spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
     worksheet_poll_1 = spreadsheet.worksheet("Umfrage 1")
     worksheet_poll_2 = spreadsheet.worksheet("Umfrage 2")
-    worksheet_poll_3 = spreadsheet.worksheet("Umfrage 3")
 
     st.header("Ranglisten")
 
@@ -46,7 +45,6 @@ def main():
 
     fetch_and_display_poll_data(worksheet_poll_1, "Umfrage 1", 'blue')
     fetch_and_display_poll_data(worksheet_poll_2, "Umfrage 2", 'green')
-    fetch_and_display_poll_data(worksheet_poll_3, "Umfrage 3", 'red')
 
 if __name__ == "__main__":
     main()
