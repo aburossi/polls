@@ -80,7 +80,7 @@ def main():
     # Display the poll based on the current page
     if st.session_state["current_page"] < len(polls):
         poll = polls[st.session_state["current_page"]]
-        st.title(f"{poll['name']}. Ordnen Sie die Optionen nach Präferenz nach:")
+        st.title(f"{poll['name']}")
         create_ranking_poll(poll["choices"], poll["worksheet"], poll["name"])
     else:
         st.write("Vielen Dank für Ihre Antworten!")
