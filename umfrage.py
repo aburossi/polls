@@ -44,8 +44,11 @@ def get_questions_and_answers():
     client = get_gspread_client()
     worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
     if worksheet:
-        questions = worksheet.get_all_values()
-        return questions
+        data = worksheet.get_all_values()
+        questions_and_answers = []
+        for col in zip(*data):
+            questions_and_answers.append(col)
+        return questions_and_answers
     return []
 
 # Main function
