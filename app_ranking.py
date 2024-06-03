@@ -1,7 +1,6 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import datetime
 
 # Constants
 SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
