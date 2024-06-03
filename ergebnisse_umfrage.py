@@ -42,7 +42,7 @@ def load_responses():
     return pd.DataFrame()
 
 # Function to plot pie chart
-def plot_pie_chart(question, responses):
+def plot_pie_chart(responses):
     response_counts = responses.value_counts()
     labels = response_counts.index
     sizes = response_counts.values
@@ -50,7 +50,6 @@ def plot_pie_chart(question, responses):
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
     ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    plt.title(question)
     st.pyplot(fig)
 
 # Main function
@@ -63,7 +62,7 @@ def main():
         for question in df[questions].unique():
             st.write(f"**{question}**")
             responses = df[df[questions] == question].iloc[:, 1]
-            plot_pie_chart(question, responses)
+            plot_pie_chart(responses)
     else:
         st.write("No responses found.")
 
