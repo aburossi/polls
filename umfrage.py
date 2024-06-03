@@ -31,13 +31,19 @@ def get_worksheet(client, sheet_name, worksheet_name):
         st.error(f"An error occurred: {e}")
         return None
 
+# Function to check and add headers if missing
+def check_and_add_headers(worksheet):
+    try:
+        headers = worksheet.row_values(1)  # Get the first row (headers)
+        if not headers or headers[0] != "Question" or headers[1] != "Answer":
+            worksheet.insert_row(["Question", "Answer"], 1)
+    except Exception as e:
+        st.error(f"Failed to check or add headers: {e}")
+
 # Function to add response to Google Sheets
 def add_response_to_sheet(worksheet, question, answer):
     try:
-        headers = worksheet.row_values(1)  # Get the first row (headers)
-        if headers[0] != "Question" or headers[1] != "Answer":
-            st.error("The worksheet does not have the correct headers.")
-            return
+        check_and_add_headers(worksheet)
         worksheet.append_row([question, answer])
     except Exception as e:
         st.error(f"Failed to add response: {e}")
