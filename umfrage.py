@@ -1,6 +1,7 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import time
 
 # Constants
 SPREADSHEET_NAME = "Umfrage"  # The name of the spreadsheet
@@ -39,6 +40,7 @@ def add_response_to_sheet(worksheet, question, answer):
         st.error(f"Failed to add response: {e}")
 
 # Function to get questions and answers from Google Sheets
+@st.cache_data(ttl=600)  # Cache data for 10 minutes
 def get_questions_and_answers(client):
     worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
     if worksheet:
