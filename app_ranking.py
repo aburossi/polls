@@ -6,7 +6,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
 CHOICES_POLL_1 = ["Option A", "Option B", "Option C", "Option D"]
 CHOICES_POLL_2 = ["Option A", "Option B", "Option C", "Option D"]
-CHOICES_POLL_3 = ["Option A", "Option B", "Option C", "Option D"]
 
 # Function to get Google Sheets client
 def get_gspread_client():
@@ -55,7 +54,6 @@ def main():
     polls = [
         {"name": "Umfrage 1", "choices": CHOICES_POLL_1, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
         {"name": "Umfrage 2", "choices": CHOICES_POLL_2, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
-        {"name": "Umfrage 3", "choices": CHOICES_POLL_3, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 3")}
     ]
 
     # Display the poll based on the current page
