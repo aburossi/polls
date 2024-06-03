@@ -59,10 +59,10 @@ def main():
     # Display the poll based on the current page
     if st.session_state.current_page < len(polls):
         poll = polls[st.session_state.current_page]
-        st.title(f"Rank the options for {poll['name']}")
+        st.title(f"Ordnen Sie die Optionen für {poll['name']}")
         create_ranking_poll(poll["choices"], poll["worksheet"], poll["name"])
     else:
-        st.write("Thank you for submitting all your rankings!")
+        st.write("Vielen Dank für Ihre Antworten!")
 
 if __name__ == "__main__":
     main()
