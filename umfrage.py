@@ -41,7 +41,8 @@ def add_response_to_sheet(worksheet, question, answer):
 
 # Function to get questions and answers from Google Sheets
 @st.cache_data(ttl=600)  # Cache data for 10 minutes
-def get_questions_and_answers(client):
+def get_questions_and_answers():
+    client = get_gspread_client()
     worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
     if worksheet:
         questions = worksheet.get_all_values()
@@ -56,8 +57,8 @@ def main():
     if 'responses' not in st.session_state:
         st.session_state.responses = {}
 
+    questions_and_answers = get_questions_and_answers()
     client = get_gspread_client()
-    questions_and_answers = get_questions_and_answers(client)
     answer_worksheet = get_worksheet(client, SPREADSHEET_NAME, ANSWER_SHEET_NAME)
 
     if answer_worksheet and questions_and_answers:
