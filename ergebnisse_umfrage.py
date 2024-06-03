@@ -2,6 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Constants
 SPREADSHEET_NAME = "Umfrage"  # The name of the spreadsheet
@@ -40,14 +41,29 @@ def load_responses():
         return pd.DataFrame(data)
     return pd.DataFrame()
 
+# Function to plot pie chart
+def plot_pie_chart(question, responses):
+    response_counts = responses.value_counts()
+    labels = response_counts.index
+    sizes = response_counts.values
+
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.title(question)
+    st.pyplot(fig)
+
 # Main function
 def main():
     st.title("Survey Results")
 
     df = load_responses()
     if not df.empty:
-        st.write("Here are the results of the survey:")
-        st.dataframe(df)
+        questions = df.columns[0]
+        for question in df[questions].unique():
+            st.write(f"**{question}**")
+            responses = df[df[questions] == question].iloc[:, 1]
+            plot_pie_chart(question, responses)
     else:
         st.write("No responses found.")
 
