@@ -2,26 +2,42 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Load credentials from Streamlit secrets
-credentials_dict = st.secrets["google_credentials"]
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"])
-client = gspread.authorize(credentials)
-spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
-worksheet = spreadsheet.sheet1
-
-questions = [
+# Constants
+SPREADSHEET_NAME = "Umfrage"  # Replace with your spreadsheet name
+QUESTIONS = [
     "1. Frage",
     "2. Frage",
     "3. Frage"
 ]
+OPTIONS = ["Select an option", "A", "B", "C", "D"]
 
-options = ["Select an option", "A", "B", "C", "D"]
+# Function to get Google Sheets client
+def get_gspread_client():
+    credentials_dict = st.secrets["google_credentials"]
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        credentials_dict, 
+        ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    )
+    return gspread.authorize(credentials)
 
-def add_response_to_sheet(question, answer):
-    worksheet.append_row([question, answer])
+# Function to get worksheet
+def get_worksheet(client, sheet_name):
+    try:
+        spreadsheet = client.open(sheet_name)
+        return spreadsheet.sheet1
+    except gspread.SpreadsheetNotFound:
+        st.error("Spreadsheet not found. Please check the name and try again.")
+        return None
 
+# Function to add response to Google Sheets
+def add_response_to_sheet(worksheet, question, answer):
+    try:
+        worksheet.append_row([question, answer])
+    except Exception as e:
+        st.error(f"Failed to add response: {e}")
+
+# Main function
 def main():
-    # Add custom CSS for the background image
     st.markdown(
         """
         <style>
@@ -47,27 +63,32 @@ def main():
         unsafe_allow_html=True
     )
 
-    if 'has_submitted' not in st.session_state:
-        st.session_state.has_submitted = False
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = 0
 
-    if st.session_state.has_submitted:
-        st.markdown('<div class="submitted"><h2>Vielen Dank!</h2></div>', unsafe_allow_html=True)
-    else:
-        st.header("Umfrage")
+    if 'responses' not in st.session_state:
+        st.session_state.responses = {}
 
-        # Collect responses for all questions
-        responses = {}
-        for idx, question in enumerate(questions):
+    client = get_gspread_client()
+    worksheet = get_worksheet(client, SPREADSHEET_NAME)
+
+    if worksheet:
+        if st.session_state.current_question < len(QUESTIONS):
+            question = QUESTIONS[st.session_state.current_question]
             st.write(f"**{question}**")
-            response = st.selectbox("", options, key=f"poll_q_{idx}")
-            responses[question] = response if response != "Select an option" else ""
-
-        # Submission button for all questions
-        if st.button("Submit all responses"):
-            for question, response in responses.items():
-                add_response_to_sheet(question, response)
+            response = st.selectbox("", OPTIONS, key=f"poll_q_{st.session_state.current_question}")
+            
+            if st.button("Submit response"):
+                if response != "Select an option":
+                    st.session_state.responses[question] = response
+                    add_response_to_sheet(worksheet, question, response)
+                    st.session_state.current_question += 1
+                    st.experimental_rerun()  # Rerun to load the next question
+                else:
+                    st.error("Please select an option before submitting.")
+        else:
             st.session_state.has_submitted = True
-            st.experimental_rerun()  # Rerun to show the submission thank you message
+            st.markdown('<div class="submitted"><h2>Vielen Dank für Ihre Antworten!</h2></div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
