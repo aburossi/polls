@@ -1,85 +1,69 @@
 import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import datetime
-from streamlit_cookies_manager import EncryptedCookieManager
+from streamlit_sortable import sortable_list
+
+# Constants
+SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
+CHOICES_POLL_1 = ["Option A", "Option B", "Option C", "Option D"]
+CHOICES_POLL_2 = ["Option A", "Option B", "Option C", "Option D"]
+CHOICES_POLL_3 = ["Option A", "Option B", "Option C", "Option D"]
+
+# Function to get Google Sheets client
+def get_gspread_client():
+    credentials_dict = st.secrets["google_credentials"]
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        credentials_dict, 
+        ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    )
+    return gspread.authorize(credentials)
+
+# Function to get worksheet
+def get_worksheet(client, sheet_name, worksheet_name):
+    spreadsheet = client.open(sheet_name)
+    worksheet = spreadsheet.worksheet(worksheet_name)
+    if worksheet.row_count == 0:
+        worksheet.append_row(["Rank", "Choice"])
+    return worksheet
+
+# Function to add rankings to the Google Sheet
+def add_rankings_to_sheet(worksheet, rankings):
+    rows = [[rank, choice] for rank, choice in enumerate(rankings, start=1)]
+    worksheet.append_rows(rows)
+
+# Function to create ranking poll
+def create_ranking_poll(choices, worksheet, poll_name):
+    st.write(f"**Rank the options for {poll_name}**")
+    ranked_choices = sortable_list(choices, direction='vertical', key=f"{poll_name}_sortable")
+
+    if st.button(f"Submit {poll_name} Preferences"):
+        add_rankings_to_sheet(worksheet, ranked_choices)
+        st.success(f"{poll_name} preferences successfully submitted!")
+        st.session_state.current_page += 1
+        st.experimental_rerun()
 
 def main():
-    # Define the choices for the polls
-    choices_poll_1 = ["Option A", "Option B", "Option C", "Option D"]
-    choices_poll_2 = ["Option A", "Option B", "Option C", "Option D"]
-    choices_poll_3 = ["Option A", "Option B", "Option C", "Option D"]
-
-    # Load credentials from Streamlit secrets
-    credentials_dict = st.secrets["google_credentials"]
-
     # Initialize Google Sheets client
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
-    client = gspread.authorize(credentials)
-    spreadsheet = client.open("Rankings")  # Replace with your spreadsheet name
-    worksheet_poll_1 = spreadsheet.worksheet("Umfrage 1")
-    worksheet_poll_2 = spreadsheet.worksheet("Umfrage 2")
-    worksheet_poll_3 = spreadsheet.worksheet("Umfrage 3")
+    client = get_gspread_client()
 
-    # Check if headers are already present for the polls; if not, add them
-    if worksheet_poll_1.row_count == 0:
-        worksheet_poll_1.append_row(["Rank", "Choice"])
-    if worksheet_poll_2.row_count == 0:
-        worksheet_poll_2.append_row(["Rank", "Choice"])
-    if worksheet_poll_3.row_count == 0:
-        worksheet_poll_3.append_row(["Rank", "Choice"])
+    # Track the current page in session state
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = 0
 
-    # Initialize cookies manager
-    cookies = EncryptedCookieManager(prefix="rank_", password=credentials_dict["cookie_password"])
+    # Define the polls
+    polls = [
+        {"name": "Umfrage 1", "choices": CHOICES_POLL_1, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
+        {"name": "Umfrage 2", "choices": CHOICES_POLL_2, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
+        {"name": "Umfrage 3", "choices": CHOICES_POLL_3, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 3")}
+    ]
 
-    if not cookies.ready():
-        st.stop()
-
-    # Check if the user has submitted each poll in the last 24 hours
-    polls = {
-        "Umfrage 1": {"worksheet": worksheet_poll_1, "choices": choices_poll_1, "cookie_key": "last_submission_poll_1"},
-        "Umfrage 2": {"worksheet": worksheet_poll_2, "choices": choices_poll_2, "cookie_key": "last_submission_poll_2"},
-        "Umfrage 3": {"worksheet": worksheet_poll_3, "choices": choices_poll_3, "cookie_key": "last_submission_poll_3"}
-    }
-
-    for poll_name, poll_data in polls.items():
-        last_submission = cookies.get(poll_data["cookie_key"])
-        if last_submission:
-            last_submission_time = datetime.datetime.fromisoformat(last_submission)
-            if (datetime.datetime.now() - last_submission_time).days < 1:
-                poll_data["has_submitted"] = True
-            else:
-                poll_data["has_submitted"] = False
-        else:
-            poll_data["has_submitted"] = False
-
-    st.title("Ordnen Sie die folgenden Optionen nach Ihrer Präferenz:")
-
-    # Function to create ranking selectors and handle submissions
-    def create_ranking_poll(choices, worksheet, poll_name, cookie_key):
-        rankings = {}
-        for i in range(1, len(choices) + 1):
-            available_choices = [choice for choice in choices if choice not in rankings.values()]
-            rankings[i] = st.selectbox(f"{poll_name} - Rank {i}", available_choices, key=f"{poll_name}_{i}")
-
-        # Function to add rankings to the Google Sheet
-        def add_rankings_to_sheet(rankings):
-            rows = [[rank, choice] for rank, choice in rankings.items()]
-            worksheet.append_rows(rows)
-
-        if st.button(f"Präferenzen {poll_name} senden"):
-            add_rankings_to_sheet(rankings)
-            cookies[cookie_key] = datetime.datetime.now().isoformat()
-            cookies.save()
-            st.success(f"{poll_name} Präferenzen erfolgreich gesendet!")
-
-    # Create ranking polls
-    for poll_name, poll_data in polls.items():
-        if poll_data["has_submitted"]:
-            st.write(f"Sie haben bereits Ihre Präferenzen für {poll_name} abgegeben. Bitte warten Sie bis zur nächsten Umfrage.")
-        else:
-            create_ranking_poll(poll_data["choices"], poll_data["worksheet"], poll_name, poll_data["cookie_key"])
+    # Display the poll based on the current page
+    if st.session_state.current_page < len(polls):
+        poll = polls[st.session_state.current_page]
+        st.title(f"Rank the options for {poll['name']}")
+        create_ranking_poll(poll["choices"], poll["worksheet"], poll["name"])
+    else:
+        st.write("Thank you for submitting all your rankings!")
 
 if __name__ == "__main__":
     main()
