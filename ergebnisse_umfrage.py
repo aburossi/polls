@@ -42,7 +42,7 @@ def load_responses():
     return pd.DataFrame()
 
 # Function to plot pie chart
-def plot_pie_chart(responses):
+def plot_pie_chart(responses, question):
     response_counts = responses.value_counts()
     labels = response_counts.index
     sizes = response_counts.values
@@ -58,11 +58,11 @@ def main():
 
     df = load_responses()
     if not df.empty:
-        questions = df.columns[0]
-        for question in df[questions].unique():
+        questions = df['Question'].unique()
+        for question in questions:
             st.write(f"**{question}**")
-            responses = df[df[questions] == question].iloc[:, 1]
-            plot_pie_chart(responses)
+            responses = df[df['Question'] == question]['Answer']
+            plot_pie_chart(responses, question)
     else:
         st.write("No responses found.")
 
