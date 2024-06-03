@@ -34,6 +34,10 @@ def get_worksheet(client, sheet_name, worksheet_name):
 # Function to add response to Google Sheets
 def add_response_to_sheet(worksheet, question, answer):
     try:
+        headers = worksheet.row_values(1)  # Get the first row (headers)
+        if headers[0] != "Question" or headers[1] != "Answer":
+            st.error("The worksheet does not have the correct headers.")
+            return
         worksheet.append_row([question, answer])
     except Exception as e:
         st.error(f"Failed to add response: {e}")
