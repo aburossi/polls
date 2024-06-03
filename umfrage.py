@@ -65,7 +65,7 @@ def main():
         if st.session_state.current_question < len(questions_and_answers):
             question_row = questions_and_answers[st.session_state.current_question]
             question = question_row[0]
-            options = question_row[1:]
+            options = [option for option in question_row[1:] if option]  # Filter out empty options
             st.write(f"**{question}**")
             response = st.radio("Select an option:", options, key=f"poll_q_{st.session_state.current_question}")
 
