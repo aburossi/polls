@@ -46,5 +46,14 @@ def main():
     fetch_and_display_poll_data(worksheet_poll_1, "Umfrage 1", 'blue')
     fetch_and_display_poll_data(worksheet_poll_2, "Umfrage 2", 'green')
 
+    # Button to clear data from both worksheets
+    if st.button("Delete Data from Google Sheets"):
+        try:
+            worksheet_poll_1.clear()
+            worksheet_poll_2.clear()
+            st.success("Data successfully deleted from both worksheets.")
+        except Exception as e:
+            st.error(f"An error occurred while deleting data: {e}")
+
 if __name__ == "__main__":
     main()
