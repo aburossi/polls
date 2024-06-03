@@ -7,3 +7,4 @@ altair
 matplotlib
 wordcloud
 streamlit_sortable
+datetime
