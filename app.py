@@ -9,7 +9,7 @@ QUESTIONS = [
     "2. Frage",
     "3. Frage"
 ]
-OPTIONS = ["Select an option", "A", "B", "C", "D"]
+OPTIONS = ["A", "B", "C", "D"]
 
 # Function to get Google Sheets client
 def get_gspread_client():
@@ -38,31 +38,6 @@ def add_response_to_sheet(worksheet, question, answer):
 
 # Main function
 def main():
-    st.markdown(
-        """
-        <style>
-        .stApp {
-            background-image: url('https://raw.githubusercontent.com/aburossi/polls/main/background.jpg');
-            background-size: cover;
-        }
-        .submitted {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
     if 'current_question' not in st.session_state:
         st.session_state.current_question = 0
 
@@ -76,10 +51,10 @@ def main():
         if st.session_state.current_question < len(QUESTIONS):
             question = QUESTIONS[st.session_state.current_question]
             st.write(f"**{question}**")
-            response = st.selectbox("", OPTIONS, key=f"poll_q_{st.session_state.current_question}")
-            
+            response = st.radio("Select an option:", OPTIONS, key=f"poll_q_{st.session_state.current_question}")
+
             if st.button("Submit response"):
-                if response != "Select an option":
+                if response:
                     st.session_state.responses[question] = response
                     add_response_to_sheet(worksheet, question, response)
                     st.session_state.current_question += 1
