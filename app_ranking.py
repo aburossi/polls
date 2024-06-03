@@ -4,9 +4,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # Constants
 SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
-CHOICES_POLL_1 = ["Option A", "Option B", "Option C", "Option D"]
-CHOICES_POLL_2 = ["Option A", "Option B", "Option C", "Option D"]
-CHOICES_POLL_3 = ["Option A", "Option B", "Option C", "Option D"]
+CHOICES_POLL = ["Option A", "Option B", "Option C", "Option D"]
 
 # Function to get Google Sheets client
 def get_gspread_client():
@@ -20,8 +18,10 @@ def get_gspread_client():
 # Function to get worksheet
 def get_worksheet(client, sheet_name, worksheet_name):
     spreadsheet = client.open(sheet_name)
-    worksheet = spreadsheet.worksheet(worksheet_name)
-    if worksheet.row_count == 0:
+    try:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        worksheet = spreadsheet.add_worksheet(title=worksheet_name, rows="1", cols="2")
         worksheet.append_row(["Rank", "Choice"])
     return worksheet
 
@@ -35,12 +35,12 @@ def create_ranking_poll(choices, worksheet, poll_name):
     rankings = {}
     for i in range(1, len(choices) + 1):
         available_choices = [choice for choice in choices if choice not in rankings.values()]
-        rankings[i] = st.selectbox(f"{poll_name} - Rank {i}", available_choices, key=f"{poll_name}_{i}")
+        rankings[i] = st.selectbox(f"Rangordnung {i}", available_choices, key=f"{poll_name}_{i}")
 
     if st.button(f"Submit {poll_name} Preferences"):
         add_rankings_to_sheet(worksheet, rankings)
         st.success(f"{poll_name} preferences successfully submitted!")
-        st.session_state.current_page += 1
+        st.session_state["current_page"] += 1
         st.experimental_rerun()
 
 def main():
@@ -49,22 +49,21 @@ def main():
 
     # Track the current page in session state
     if 'current_page' not in st.session_state:
-        st.session_state.current_page = 0
+        st.session_state["current_page"] = 0
 
     # Define the polls
     polls = [
-        {"name": "Umfrage 1", "choices": CHOICES_POLL_1, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
-        {"name": "Umfrage 2", "choices": CHOICES_POLL_2, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
-        {"name": "Umfrage 3", "choices": CHOICES_POLL_3, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 3")}
+        {"name": "Umfrage 1", "choices": CHOICES_POLL, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
+        {"name": "Umfrage 2", "choices": CHOICES_POLL, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
     ]
 
     # Display the poll based on the current page
-    if st.session_state.current_page < len(polls):
-        poll = polls[st.session_state.current_page]
-        st.title(f"Rank the options for {poll['name']}")
+    if st.session_state["current_page"] < len(polls):
+        poll = polls[st.session_state["current_page"]]
+        st.title(f"Ordnen Sie die Optionen für {poll['name']}")
         create_ranking_poll(poll["choices"], poll["worksheet"], poll["name"])
     else:
-        st.write("Thank you for submitting all your rankings!")
+        st.write("Vielen Dank für Ihre Antworten!")
 
 if __name__ == "__main__":
     main()
