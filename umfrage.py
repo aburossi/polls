@@ -3,7 +3,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Constants
-SPREADSHEET_NAME = "Umfrage"  # Replace with your spreadsheet name
+SPREADSHEET_NAME = "sheet1"  # Replace with your spreadsheet name
 QUESTION_SHEET_NAME = "QandA"  # Sheet name where questions and answers are stored
 
 # Function to get Google Sheets client
