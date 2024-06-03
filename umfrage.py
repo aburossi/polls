@@ -45,9 +45,8 @@ def get_questions_and_answers():
     worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
     if worksheet:
         data = worksheet.get_all_values()
-        questions_and_answers = []
-        for col in zip(*data):
-            questions_and_answers.append(col)
+        # Transpose data to handle columns as questions and rows as answers
+        questions_and_answers = list(zip(*data))
         return questions_and_answers
     return []
 
