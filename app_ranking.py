@@ -47,7 +47,7 @@ def create_ranking_poll(choices, worksheet, poll_name):
     rankings = {}
     for i in range(1, len(choices) + 1):
         available_choices = [choice for choice in choices if choice not in rankings.values()]
-        rankings[i] = st.selectbox(f"Rangordnung {i}", available_choices, key=f"{poll_name}_{i}")
+        rankings[i] = st.selectbox(f"{i}. Rang", available_choices, key=f"{poll_name}_{i}")
 
     if st.button(f"Rangliste senden"):
         add_rankings_to_sheet(worksheet, rankings)
