@@ -3,8 +3,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Constants
-SPREADSHEET_NAME = "sheet1"  # Replace with your spreadsheet name
-QUESTION_SHEET_NAME = "QandA"  # Sheet name where questions and answers are stored
+SPREADSHEET_NAME = "Umfrage"  # The name of the spreadsheet
+ANSWER_SHEET_NAME = "sheet1"  # The sheet where the answers should be saved
+QUESTION_SHEET_NAME = "QandA"  # The sheet where questions and answers are stored
 
 # Function to get Google Sheets client
 def get_gspread_client():
@@ -16,12 +17,18 @@ def get_gspread_client():
     return gspread.authorize(credentials)
 
 # Function to get worksheet
-def get_worksheet(client, sheet_name):
+def get_worksheet(client, sheet_name, worksheet_name):
     try:
         spreadsheet = client.open(sheet_name)
-        return spreadsheet.worksheet(sheet_name)
+        return spreadsheet.worksheet(worksheet_name)
     except gspread.SpreadsheetNotFound:
-        st.error("Spreadsheet not found. Please check the name and try again.")
+        st.error(f"Spreadsheet '{sheet_name}' not found. Please check the name and try again.")
+        return None
+    except gspread.WorksheetNotFound:
+        st.error(f"Worksheet '{worksheet_name}' not found in the spreadsheet '{sheet_name}'.")
+        return None
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
         return None
 
 # Function to add response to Google Sheets
@@ -33,7 +40,7 @@ def add_response_to_sheet(worksheet, question, answer):
 
 # Function to get questions and answers from Google Sheets
 def get_questions_and_answers(client):
-    worksheet = get_worksheet(client, QUESTION_SHEET_NAME)
+    worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
     if worksheet:
         questions = worksheet.get_all_values()
         return questions
@@ -49,9 +56,9 @@ def main():
 
     client = get_gspread_client()
     questions_and_answers = get_questions_and_answers(client)
-    worksheet = get_worksheet(client, SPREADSHEET_NAME)
+    answer_worksheet = get_worksheet(client, SPREADSHEET_NAME, ANSWER_SHEET_NAME)
 
-    if worksheet and questions_and_answers:
+    if answer_worksheet and questions_and_answers:
         if st.session_state.current_question < len(questions_and_answers):
             question_row = questions_and_answers[st.session_state.current_question]
             question = question_row[0]
@@ -62,7 +69,7 @@ def main():
             if st.button("Submit response"):
                 if response:
                     st.session_state.responses[question] = response
-                    add_response_to_sheet(worksheet, question, response)
+                    add_response_to_sheet(answer_worksheet, question, response)
                     st.session_state.current_question += 1
                     st.experimental_rerun()  # Rerun to load the next question
                 else:
