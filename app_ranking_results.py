@@ -55,9 +55,9 @@ def fetch_and_display_poll_data(worksheet, poll_name, color):
             # Display the results as a bar chart
             chart = alt.Chart(average_ranks).mark_bar(color=color).encode(
                 x=alt.X("Average Rank:Q", axis=alt.Axis(title="Durchschnittliche Bewertung")),
-                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Auswahl"))
+                y=alt.Y("Choice:N", sort=alt.SortField(field="Average Rank", order="ascending"), axis=alt.Axis(title="Antworten"))
             ).properties(
-                title=f"Durchschnittliche Bewertung der Auswahlmöglichkeiten - {poll_name}"
+                title=f"{poll_name}"
             )
 
             st.altair_chart(chart, use_container_width=True)
