@@ -6,3 +6,4 @@ streamlit_cookies_manager
 altair
 matplotlib
 wordcloud
+streamlit_sortable
