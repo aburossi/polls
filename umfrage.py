@@ -40,7 +40,7 @@ def add_response_to_sheet(worksheet, question, answer):
         st.error(f"Failed to add response: {e}")
 
 # Function to get questions and answers from Google Sheets
-@st.cache_data(ttl=600)  # Cache data for 10 minutes
+@st.cache_data(ttl=120)  # Cache data for 2 minutes
 def get_questions_and_answers():
     client = get_gspread_client()
     worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
