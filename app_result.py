@@ -55,3 +55,11 @@ try:
         st.write("No responses found.")
 except Exception as e:
     st.error(f"An error occurred: {e}")
+
+# Button to clear data from the worksheet
+if st.button("Delete Data from Google Sheet"):
+    try:
+        worksheet.clear()
+        st.success("Data successfully deleted from the worksheet.")
+    except Exception as e:
+        st.error(f"An error occurred while deleting data: {e}")
