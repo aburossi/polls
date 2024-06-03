@@ -4,7 +4,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # Constants
 SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
-CHOICES_POLL = ["Option A", "Option B", "Option C", "Option D"]
+QUESTION_SHEET_NAME = "QandA"  # Sheet name where questions and answers are stored
 
 # Function to get Google Sheets client
 def get_gspread_client():
@@ -17,16 +17,25 @@ def get_gspread_client():
 
 # Function to get worksheet
 def get_worksheet(client, sheet_name, worksheet_name):
-    spreadsheet = client.open(sheet_name)
     try:
+        spreadsheet = client.open(sheet_name)
         worksheet = spreadsheet.worksheet(worksheet_name)
-        # Check if the first row is set correctly
-        if worksheet.row_count == 0 or worksheet.row_values(1) != ["Rank", "Choice"]:
-            worksheet.update('A1', [["Rank", "Choice"]])
+        return worksheet
     except gspread.exceptions.WorksheetNotFound:
-        worksheet = spreadsheet.add_worksheet(title=worksheet_name, rows="1", cols="2")
-        worksheet.append_row(["Rank", "Choice"])
-    return worksheet
+        st.error(f"Worksheet '{worksheet_name}' not found in the spreadsheet '{sheet_name}'.")
+        return None
+
+# Function to get questions and answers from Google Sheets
+@st.cache_data(ttl=600)  # Cache data for 10 minutes
+def get_questions_and_answers():
+    client = get_gspread_client()
+    worksheet = get_worksheet(client, SPREADSHEET_NAME, QUESTION_SHEET_NAME)
+    if worksheet:
+        questions_and_answers = worksheet.get_all_values()
+        # Transpose the data to get questions in columns
+        questions_and_answers = list(zip(*questions_and_answers))
+        return questions_and_answers
+    return []
 
 # Function to add rankings to the Google Sheet
 def add_rankings_to_sheet(worksheet, rankings):
@@ -54,11 +63,17 @@ def main():
     if 'current_page' not in st.session_state:
         st.session_state["current_page"] = 0
 
-    # Define the polls
-    polls = [
-        {"name": "Umfrage 1", "choices": CHOICES_POLL, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
-        {"name": "Umfrage 2", "choices": CHOICES_POLL, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
-    ]
+    # Load questions and answers from Google Sheets
+    questions_and_answers = get_questions_and_answers()
+
+    # Create a poll for each question
+    polls = []
+    for q_a in questions_and_answers:
+        question = q_a[0]
+        answers = q_a[1:]
+        worksheet = get_worksheet(client, SPREADSHEET_NAME, question)
+        if worksheet:
+            polls.append({"name": question, "choices": answers, "worksheet": worksheet})
 
     # Display the poll based on the current page
     if st.session_state["current_page"] < len(polls):
