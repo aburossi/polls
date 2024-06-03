@@ -1,68 +1,65 @@
 import streamlit as st
+import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import matplotlib.pyplot as plt
 
-# Constants
-SPREADSHEET_NAME = "Rankings"  # Replace with your spreadsheet name
-CHOICES_POLL_1 = ["Option A", "Option B", "Option C", "Option D"]
-CHOICES_POLL_2 = ["Option A", "Option B", "Option C", "Option D"]
+# Define static questions and answers
+questions = [
+    "1. Frage",
+    "2. Frage",
+    "3. Frage"
+]
 
-# Function to get Google Sheets client
-def get_gspread_client():
-    credentials_dict = st.secrets["google_credentials"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-        credentials_dict, 
-        ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    )
-    return gspread.authorize(credentials)
+# Initialize Google Sheets client
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+credentials_dict = st.secrets["google_credentials"]
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
+client = gspread.authorize(credentials)
+spreadsheet = client.open("Umfrage")  # Replace with your spreadsheet name
+worksheet = spreadsheet.sheet1
 
-# Function to get worksheet
-def get_worksheet(client, sheet_name, worksheet_name):
-    spreadsheet = client.open(sheet_name)
-    worksheet = spreadsheet.worksheet(worksheet_name)
-    if worksheet.row_count == 0:
-        worksheet.append_row(["Rank", "Choice"])
-    return worksheet
+# Function to get all responses from the Google Sheet
+def get_all_responses():
+    records = worksheet.get_all_records()
+    return pd.DataFrame(records)
 
-# Function to add rankings to the Google Sheet
-def add_rankings_to_sheet(worksheet, rankings):
-    rows = [[rank, choice] for rank, choice in rankings.items()]
-    worksheet.append_rows(rows)
+# Function to plot the bar chart with custom colors
+def plot_bar_chart(data, title, color):
+    fig, ax = plt.subplots()
+    data.plot(kind='bar', ax=ax, color=color)
+    ax.set_title(title)
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
 
-# Function to create ranking selectors and handle submissions
-def create_ranking_poll(choices, worksheet, poll_name):
-    rankings = {}
-    for i in range(1, len(choices) + 1):
-        available_choices = [choice for choice in choices if choice not in rankings.values()]
-        rankings[i] = st.selectbox(f"Rangordnung {i}", available_choices, key=f"{poll_name}_{i}")
+# Define colors for each question
+colors = ['#FF6347', '#4682B4', '#32CD32']  # Different colors for each question
 
-    if st.button(f"Submit {poll_name} Preferences"):
-        add_rankings_to_sheet(worksheet, rankings)
-        st.success(f"{poll_name} preferences successfully submitted!")
-        st.session_state.current_page += 1
-        st.experimental_rerun()
-
-def main():
-    # Initialize Google Sheets client
-    client = get_gspread_client()
-
-    # Track the current page in session state
-    if 'current_page' not in st.session_state:
-        st.session_state.current_page = 0
-
-    # Define the polls
-    polls = [
-        {"name": "Umfrage 1", "choices": CHOICES_POLL_1, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 1")},
-        {"name": "Umfrage 2", "choices": CHOICES_POLL_2, "worksheet": get_worksheet(client, SPREADSHEET_NAME, "Umfrage 2")},
-    ]
-
-    # Display the poll based on the current page
-    if st.session_state.current_page < len(polls):
-        poll = polls[st.session_state.current_page]
-        st.title(f"Ordnen Sie die Optionen für {poll['name']}")
-        create_ranking_poll(poll["choices"], poll["worksheet"], poll["name"])
+# Display results
+try:
+    all_responses = get_all_responses()
+    
+    if not all_responses.empty:
+        st.header("Poll Results")
+        results_df = pd.DataFrame(all_responses)
+        
+        # Ensure column headers are present
+        if 'Question' not in results_df.columns or 'Answer' not in results_df.columns:
+            st.error("Data format error: Ensure the first row of your Google Sheet contains 'Question' and 'Answer' headers.")
+        else:
+            for idx, question in enumerate(questions):
+                st.write(f"**{question}**")
+                response_data = results_df[results_df['Question'] == question]['Answer'].value_counts()
+                plot_bar_chart(response_data, question, colors[idx])
     else:
-        st.write("Vielen Dank für Ihre Antworten!")
+        st.write("No responses found.")
+except Exception as e:
+    st.error(f"An error occurred: {e}")
 
-if __name__ == "__main__":
-    main()
+# Button to clear data from the worksheet
+if st.button("Delete Data from Google Sheet"):
+    try:
+        worksheet.clear()
+        st.success("Data successfully deleted from the worksheet.")
+    except Exception as e:
+        st.error(f"An error occurred while deleting data: {e}")
